@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: endixium
-          image: ghcr.io/anthony-bible/endixium-dev@sha256:7e944d606501ced3661b44581f64cd5aeb31f4cddee5f24da50c876a8637bc03
+          image: ghcr.io/anthony-bible/endixium-dev@sha256:68b85d5e5b92fdb3f53d16be50965e08b68d2dab26cc7d755ef0efe848b2ef78
           ports:
             - containerPort: 80
               name: http
@@ -54,10 +54,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - endixium-dev.endixium.com
+        - "endixium-dev.endixium.com"
       secretName: endixium-dev-tls
   rules:
-    - host: endixium-dev.endixium.com
+    - host: "endixium-dev.endixium.com"
       http:
         paths:
           - path: /

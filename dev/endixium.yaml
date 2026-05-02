@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: endixium
+  namespace: endixium-dev
+  labels:
+    app: endixium
+    phase: "dev"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: endixium
+  template:
+    metadata:
+      labels:
+        app: endixium
+        phase: "dev"
+    spec:
+      containers:
+        - name: endixium
+          image: ghcr.io/anthony-bible/endixium-dev@sha256:7e944d606501ced3661b44581f64cd5aeb31f4cddee5f24da50c876a8637bc03
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: endixium
+  namespace: endixium-dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - endixium-dev.endixium.com
+      secretName: endixium-dev-tls
+  rules:
+    - host: endixium-dev.endixium.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: endixium
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: endixium
+  namespace: endixium-dev
+spec:
+  selector:
+    app: endixium
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
